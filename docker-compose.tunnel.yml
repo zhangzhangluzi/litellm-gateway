@@ -1,0 +1,36 @@
+# Host 80/443 busy (existing Caddy/sing-box). Cloudflare Tunnel -> 127.0.0.1:4000.
+# Usage: docker compose -f docker-compose.tunnel.yml up -d
+# Never publish 4000 on 0.0.0.0.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:v1.106.6
+    container_name: litellm
+    restart: unless-stopped
+    command: ["--config", "/app/config.yaml", "--host", "0.0.0.0", "--port", "4000"]
+    env_file: .env
+    environment:
+      CLOUDFLARE_API_BASE: "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1"
+      TMPDIR: /tmp
+      LITELLM_LOG: "INFO"
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml:ro
+    ports:
+      - "127.0.0.1:4000:4000"
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/health/liveliness', timeout=5).read()\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  default:
+    name: litellm_net

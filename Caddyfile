@@ -1,0 +1,18 @@
+# Automatic HTTPS via Let's Encrypt.
+# Set DOMAIN in .env (e.g. llm.example.com) and point DNS A/AAAA to this VPS.
+{$DOMAIN} {
+	encode gzip zstd
+	reverse_proxy litellm:4000 {
+		# Streaming chat completions must not be buffered
+		flush_interval -1
+	}
+	header {
+		# Basic hardening; LiteLLM still requires Authorization
+		-Server
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+	}
+	log {
+		output stdout
+	}
+}
