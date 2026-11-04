@@ -8,6 +8,8 @@
 
 仓库只提交占位符。真实密钥写在 VPS 上的 `.env`（`chmod 600`），该文件已被 `.gitignore` 排除。
 
+模型与供应商评级见 [MODEL-RATINGS.md](MODEL-RATINGS.md)。
+
 ## 两条部署路径
 
 | 场景 | 命令 | 公网入口 |
