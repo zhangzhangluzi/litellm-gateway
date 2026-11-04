@@ -1,0 +1,75 @@
+# LiteLLM unified gateway config. Keys referenced via os.environ/ only.
+model_list:
+  # ---- specific aliases ----
+  - model_name: gpt-oss-120b-groq
+    litellm_params: {model: groq/openai/gpt-oss-120b, api_key: os.environ/GROQ_API_KEY}
+  - model_name: nemotron-openrouter
+    litellm_params: {model: openrouter/nvidia/nemotron-3.5-lightning:free, api_key: os.environ/OPENROUTER_API_KEY}
+  - model_name: gemma-4-31b-openrouter
+    litellm_params: {model: openrouter/google/gemma-4-31b-it:free, api_key: os.environ/OPENROUTER_API_KEY}
+  - model_name: gemini-3.5-flash
+    litellm_params: {model: gemini/gemini-3.5-flash, api_key: os.environ/GEMINI_API_KEY}
+  - model_name: glm-4.5-flash
+    litellm_params: {model: openai/glm-4.5-flash, api_base: "https://api.z.ai/api/paas/v4/", api_key: os.environ/ZAI_API_KEY}
+  - model_name: solar-mini
+    litellm_params: {model: openai/solar-mini4, api_base: "https://api.upstage.ai/v1", api_key: os.environ/UPSTAGE_API_KEY}
+  - model_name: command-a
+    litellm_params: {model: openai/command-a-03-2025, api_base: "https://api.cohere.ai/compatibility/v1", api_key: os.environ/COHERE_API_KEY}
+  - model_name: gpt-oss-120b-cerebras
+    litellm_params: {model: openai/gpt-oss-120b, api_base: "https://api.cerebras.ai/v1", api_key: os.environ/CEREBRAS_API_KEY}
+  - model_name: nemotron-nvidia
+    litellm_params: {model: openai/nvidia/nemotron-3.5-lightning-30b-a3b, api_base: "https://integrate.api.nvidia.com/v1", api_key: os.environ/NVIDIA_API_KEY}
+  - model_name: mistral-small
+    litellm_params: {model: openai/mistral-small-latest, api_base: "https://api.mistral.ai/v1", api_key: os.environ/MISTRAL_API_KEY}
+  - model_name: qwen2.5-7b-siliconflow
+    litellm_params: {model: openai/Qwen/Qwen2.5-7B-Instruct, api_base: "https://api.siliconflow.cn/v1", api_key: os.environ/SILICONFLOW_API_KEY}
+  - model_name: deepseek-v3-siliconflow
+    litellm_params: {model: openai/deepseek-ai/DeepSeek-V3, api_base: "https://api.siliconflow.cn/v1", api_key: os.environ/SILICONFLOW_API_KEY}
+  - model_name: llama-3.3-70b-cloudflare
+    # CLOUDFLARE_API_BASE is built from CLOUDFLARE_ACCOUNT_ID by litellm-start.sh
+    litellm_params: {model: "openai/@cf/meta/llama-3.3-70b-instruct-fp8-fast", api_base: os.environ/CLOUDFLARE_API_BASE, api_key: os.environ/CLOUDFLARE_API_TOKEN}
+  # ---- free-auto: load-balanced pool (simple-shuffle) ----
+  - model_name: free-auto
+    litellm_params: {model: groq/openai/gpt-oss-120b, api_key: os.environ/GROQ_API_KEY}
+  - model_name: free-auto
+    litellm_params: {model: openai/gpt-oss-120b, api_base: "https://api.cerebras.ai/v1", api_key: os.environ/CEREBRAS_API_KEY}
+  - model_name: free-auto
+    litellm_params: {model: openrouter/nvidia/nemotron-3.5-lightning:free, api_key: os.environ/OPENROUTER_API_KEY}
+  - model_name: free-auto
+    litellm_params: {model: gemini/gemini-3.5-flash, api_key: os.environ/GEMINI_API_KEY}
+
+  # ---- free-fast: fast pool for quick replies ----
+  - model_name: free-fast
+    litellm_params: {model: groq/openai/gpt-oss-120b, api_key: os.environ/GROQ_API_KEY}
+  - model_name: free-fast
+    litellm_params: {model: openai/gpt-oss-120b, api_base: "https://api.cerebras.ai/v1", api_key: os.environ/CEREBRAS_API_KEY}
+
+  # ---- free-cn: China-friendly pool ----
+  - model_name: free-cn
+    litellm_params: {model: openai/deepseek-ai/DeepSeek-V3, api_base: "https://api.siliconflow.cn/v1", api_key: os.environ/SILICONFLOW_API_KEY}
+  - model_name: free-cn
+    litellm_params: {model: openai/glm-4.5-flash, api_base: "https://api.z.ai/api/paas/v4/", api_key: os.environ/ZAI_API_KEY}
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 2
+  timeout: 120
+  allowed_fails: 2
+  cooldown_time: 60
+  fallbacks:
+    - free-auto: [mistral-small, deepseek-v3-siliconflow, glm-4.5-flash]
+    - free-fast: [free-auto]
+    - free-cn: [free-auto]
+    - gpt-oss-120b-groq: [gpt-oss-120b-cerebras]
+    - gpt-oss-120b-cerebras: [gpt-oss-120b-groq]
+    - gemma-4-31b-openrouter: [nemotron-openrouter, free-auto]
+    - mistral-small: [free-auto]
+    - nemotron-openrouter: [nemotron-nvidia]
+    - nemotron-nvidia: [nemotron-openrouter]
+
+litellm_settings:
+  drop_params: true
+  num_retries: 2
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
