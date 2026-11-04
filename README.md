@@ -20,7 +20,7 @@
 | A | `gpt-oss-120b-groq` / `gpt-oss-120b-cerebras` | Groq / Cerebras | 大模型、极速；Cerebras 有赠金上限 | 要速度的推理和代码 |
 | A- | `free-auto` | 多家轮换 | 质量随后端变化，胜在不容易撞额度 | 默认首选 |
 | B+ | `nemotron-openrouter` / `nemotron-nvidia` | OpenRouter / NVIDIA | 开源里不错，免费额度偏紧 | 备用 |
-| B | `glm-4.5-flash`、`free-cn` | 智谱 / 硅基池 | 中文友好，Flash 偏轻 | 国内访问、轻任务 |
+| B | `glm-4.5-flash`、`free-cn` | 智谱 / 硅基池 | 中文友好，Flash 偏轻 | `free-cn` 为经 SiliconFlow 的中文友好模型池；轻任务 |
 | B | `qwen2.5-7b-siliconflow` | 硅基流动 | 7B，能聊但不适合当主力 | 短问答 |
 | B- | `llama-3.3-70b-cloudflare` | Cloudflare | 70B 可用，Neurons 额度有限 | 备用 |
 | C+ | `solar-mini`、`command-a` | Upstage / Cohere | 一般，偏赠金或试用 | 凑数 |
@@ -31,14 +31,14 @@
 - 默认用 `free-auto`。
 - 要质量：`deepseek-v3-siliconflow` 或 `gemini-3.5-flash`。
 - 要速度：Groq / Cerebras 的 `gpt-oss-120b-*`。
-- 国内优先：`free-cn`。
+- 中文向任务：`free-cn`（经 SiliconFlow 的中文友好模型池）。
 - 没有哪一家是无限强；额度用完就换一个模型名再试。
 
 ### 供应商小结
 
 | 供应商 | 评价 |
 |---|---|
-| 硅基流动 | 质量最好的免费来源，有国内线路 |
+| 硅基流动 | 质量最好的免费来源，端点快 |
 | Google AI Studio | 综合强、稳，有速率限制 |
 | Groq / Cerebras | 速度最快，注意每日额度和赠金 |
 | OpenRouter / NVIDIA | 免费模型多，但容易限流 |
@@ -70,7 +70,7 @@
 | 镜像 | 钉死 `ghcr.io/berriai/litellm:v1.106.6` 与 `caddy:2.9-alpine`，不用 `:latest` |
 | 部署后清理 | `docker image prune -f`，以及 `sudo apt clean` |
 
-机房：兼顾国内 SiliconFlow 与海外 Groq / OpenRouter 时，优先香港，其次新加坡或东京。
+机房：兼顾 SiliconFlow 与 Groq / OpenRouter 时，优先香港，其次新加坡或东京。
 
 ## 前置条件
 
