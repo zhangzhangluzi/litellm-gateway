@@ -53,7 +53,7 @@
 
 ## 3. VPS 区域
 
-| 区域 | 到客户端 | 对 SiliconFlow | 对 Groq / OpenRouter / Cerebras | 建议 |
+| 区域 | 到客户端 | 对智谱 | 对 Groq / OpenRouter / Cerebras | 建议 |
 |------|----------|----------------|----------------------------------|------|
 | **香港** | 通常最优（约 30–60 ms 量级，优质线路更好） | 友好 | 可接受 | **首选** |
 | **新加坡** | 略远 | 一般可用 | 这些 API 稳定性常不错 | 次选 |
@@ -98,7 +98,6 @@ AI_GATEWAY_API_KEY=
 CEREBRAS_API_KEY=
 NVIDIA_API_KEY=
 MISTRAL_API_KEY=
-SILICONFLOW_API_KEY=
 CLOUDFLARE_API_TOKEN=
 CLOUDFLARE_ACCOUNT_ID=
 # CLOUDFLARE_API_BASE 由 docker-compose 根据 ACCOUNT_ID 自动拼接

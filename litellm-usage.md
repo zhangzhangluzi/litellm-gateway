@@ -58,7 +58,7 @@ print(r.choices[0].message.content)
 ```
 （Key 仍用原 `LITELLM_MASTER_KEY` / 配置里已有的密钥字段。）
 
-常用模型别名：`free-auto` / `free-fast` / `free-cn`，以及各后端别名（groq / cerebras / gemini / siliconflow 等）。
+常用模型别名：`free-auto` / `free-fast` / `free-cn`，以及各后端别名（groq / cerebras / gemini 等）。
 
 ---
 
@@ -88,7 +88,7 @@ VPS 上主密钥只写在 `/opt/litellm/.env` 的 `LITELLM_MASTER_KEY`（`chmod 
 |---|---|
 | `free-auto` | 负载均衡：Groq gpt-oss-120b / Cerebras gpt-oss-120b / OpenRouter Nemotron / Gemini 3.5 Flash；全部失败时依次降级到 mistral-small → deepseek-v3 → glm-4.5-flash |
 | `free-fast` | Groq + Cerebras 的 gpt-oss-120b（最快），失败时降级到 free-auto |
-| `free-cn` | SiliconFlow DeepSeek-V3 + 智谱 GLM-4.5-Flash，失败时降级到 free-auto |
+| `free-cn` | 智谱 GLM-4.5-Flash（中文友好），失败时降级到 free-auto |
 | `gpt-oss-120b-groq` | Groq openai/gpt-oss-120b |
 | `gpt-oss-120b-cerebras` | Cerebras gpt-oss-120b |
 | `gemini-3.5-flash` | Google Gemini 3.5 Flash |
