@@ -1,0 +1,23 @@
+# gateway-autopilot settings (no secrets here). Unknown keys fall back to defaults in autopilot.py.
+pool_prefixes: ["free-"]        # model_names starting with these are tiers/pools (free-auto, free-fast, free-cn ...)
+verify_pool: free-auto
+count_interval_hours: 12        # runs closer than this don't advance the 2-run streaks (manual reruns are harmless)
+remove_after: 2
+readd_after: 2
+add_after: 2
+max_add_per_run: 2
+max_auto_added_total: 6
+max_candidate_probes: 6
+openrouter_free: {enabled: true, min_context: 32000}
+# Whitelist of families for "newer version of an already configured model".
+# regex is matched against the upstream model id (without the litellm provider prefix);
+# capture groups = version; compared as integer tuples (3.5 -> (3,5)); a missing group = default_version.
+# A candidate is added only if its version is strictly greater than the highest configured member.
+autopilot_families:
+  gemini-flash:   {provider: gemini,   regex: '^gemini-(\d+(?:\.\d+)?)-flash$'}
+  gpt-oss-groq:   {provider: groq,     regex: '^openai/gpt-oss-(?:(\d+(?:\.\d+)?)-)?120b$', default_version: 1}
+  gpt-oss-cerebras: {provider: cerebras, regex: '^gpt-oss-(?:(\d+(?:\.\d+)?)-)?120b$', default_version: 1}
+  glm-flash:      {provider: zai,       regex: '^glm-(\d+(?:\.\d+)?)-flash$'}
+  nemotron-nvidia: {provider: nvidia,  regex: '^nvidia/nemotron-(\d+(?:\.\d+)?)-lightning-30b-a3b$'}
+  llama-70b-cloudflare: {provider: cloudflare, regex: '^@cf/meta/llama-(\d+(?:\.\d+)?)-70b-instruct-fp8-fast$'}
+provider_aliases: {z: zai}       # api.z.ai -> 'zai' (used in <model>-<provider> names and family provider match)

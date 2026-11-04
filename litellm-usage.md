@@ -84,11 +84,13 @@ tail -f /workspace/litellm.log  # 查看日志
 VPS 上主密钥只写在 `/opt/litellm/.env` 的 `LITELLM_MASTER_KEY`（`chmod 600`）。工作站若另有本地文件，权限同样设为 600，并且不要进入 Git。
 
 ## 模型别名
+回退原则：先纯免费（换一家）→ 再赠金/试用额度（Cerebras、Cohere、Upstage、Cloudflare）→ 最后其他免费模型。429 出现一次就冷却 60 秒并切换。完整链见 `litellm-config.yaml` 的 `router_settings.fallbacks`。
+
 | 别名 | 实际后端 |
 |---|---|
-| `free-auto` | 负载均衡：Groq gpt-oss-120b / Cerebras gpt-oss-120b / OpenRouter Nemotron / Gemini 3.5 Flash；全部失败时依次降级到 mistral-small → deepseek-v3 → glm-4.5-flash |
-| `free-fast` | Groq + Cerebras 的 gpt-oss-120b（最快），失败时降级到 free-auto |
-| `free-cn` | 智谱 GLM-4.5-Flash（中文友好），失败时降级到 free-auto |
+| `free-auto` | 负载均衡（只放纯免费）：Groq gpt-oss-120b / OpenRouter Nemotron / Gemini 3.5 Flash；失败时依次：glm-4.5-flash → nemotron-nvidia → gpt-oss-120b-cerebras → command-a → solar-mini → llama-3.3-70b-cloudflare |
+| `free-fast` | Groq gpt-oss-120b 优先，Cerebras 同模型（赠金）次之；失败时依次：nemotron-openrouter → nemotron-nvidia → llama-3.3-70b-cloudflare → solar-mini → gemini-3.5-flash |
+| `free-cn` | 智谱 GLM-4.5-Flash（中文友好）；失败时依次：gemini-3.5-flash → gpt-oss-120b-groq → command-a → solar-mini → nemotron-nvidia |
 | `gpt-oss-120b-groq` | Groq openai/gpt-oss-120b |
 | `gpt-oss-120b-cerebras` | Cerebras gpt-oss-120b |
 | `gemini-3.5-flash` | Google Gemini 3.5 Flash |

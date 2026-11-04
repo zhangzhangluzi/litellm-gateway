@@ -28,17 +28,15 @@ model_list:
   - model_name: free-auto
     litellm_params: {model: groq/openai/gpt-oss-120b, api_key: os.environ/GROQ_API_KEY}
   - model_name: free-auto
-    litellm_params: {model: openai/gpt-oss-120b, api_base: "https://api.cerebras.ai/v1", api_key: os.environ/CEREBRAS_API_KEY}
-  - model_name: free-auto
     litellm_params: {model: openrouter/nvidia/nemotron-3.5-lightning:free, api_key: os.environ/OPENROUTER_API_KEY}
   - model_name: free-auto
     litellm_params: {model: gemini/gemini-3.5-flash, api_key: os.environ/GEMINI_API_KEY}
 
   # ---- free-fast: fast pool for quick replies ----
   - model_name: free-fast
-    litellm_params: {model: groq/openai/gpt-oss-120b, api_key: os.environ/GROQ_API_KEY, timeout: 30}
+    litellm_params: {model: groq/openai/gpt-oss-120b, api_key: os.environ/GROQ_API_KEY, timeout: 30, order: 1}
   - model_name: free-fast
-    litellm_params: {model: openai/gpt-oss-120b, api_base: "https://api.cerebras.ai/v1", api_key: os.environ/CEREBRAS_API_KEY, timeout: 30}
+    litellm_params: {model: openai/gpt-oss-120b, api_base: "https://api.cerebras.ai/v1", api_key: os.environ/CEREBRAS_API_KEY, timeout: 30, order: 2}  # B: credit, used only when groq fails
 
   # ---- free-cn: Chinese-friendly pool (glm-4.5-flash) ----
   - model_name: free-cn
@@ -59,16 +57,26 @@ router_settings:
   allowed_fails_policy:
     RateLimitErrorAllowedFails: 1     # cool down on first 429, switch provider
     BadRequestErrorAllowedFails: 1000
+  # Fallback order: A (pure free, other provider) -> B (credit/trial) -> other A.
+  # Flat lists of single models only (no pool/group refs) => no loops; no self refs.
+  # A: gpt-oss-120b-groq, nemotron-openrouter, gemini-3.5-flash, glm-4.5-flash, nemotron-nvidia
+  # B: gpt-oss-120b-cerebras, command-a, solar-mini, llama-3.3-70b-cloudflare
+  # C (not in chains, 429 at test time): gemma-4-31b-openrouter, mistral-small
   fallbacks:
-    - free-auto: [mistral-small, glm-4.5-flash]
-    - free-fast: [free-auto]
-    - free-cn: [free-auto]
-    - gpt-oss-120b-groq: [gpt-oss-120b-cerebras]
-    - gpt-oss-120b-cerebras: [gpt-oss-120b-groq]
-    - gemma-4-31b-openrouter: [nemotron-openrouter, free-auto]
-    - mistral-small: [free-auto]
-    - nemotron-openrouter: [nemotron-nvidia]
-    - nemotron-nvidia: [nemotron-openrouter]
+    - free-auto: [glm-4.5-flash, nemotron-nvidia, gpt-oss-120b-cerebras, command-a, solar-mini, llama-3.3-70b-cloudflare]
+    - free-fast: [nemotron-openrouter, nemotron-nvidia, llama-3.3-70b-cloudflare, solar-mini, gemini-3.5-flash]
+    - free-cn: [gemini-3.5-flash, gpt-oss-120b-groq, command-a, solar-mini, nemotron-nvidia]
+    - gpt-oss-120b-groq: [nemotron-nvidia, gpt-oss-120b-cerebras, command-a, gemini-3.5-flash]
+    - gpt-oss-120b-cerebras: [gpt-oss-120b-groq, nemotron-nvidia, command-a, gemini-3.5-flash]
+    - nemotron-openrouter: [nemotron-nvidia, llama-3.3-70b-cloudflare, solar-mini, gpt-oss-120b-groq]
+    - nemotron-nvidia: [nemotron-openrouter, llama-3.3-70b-cloudflare, solar-mini, gpt-oss-120b-groq]
+    - gemini-3.5-flash: [gpt-oss-120b-groq, glm-4.5-flash, command-a, gpt-oss-120b-cerebras, nemotron-nvidia]
+    - glm-4.5-flash: [gemini-3.5-flash, gpt-oss-120b-groq, command-a, solar-mini, nemotron-nvidia]
+    - gemma-4-31b-openrouter: [gemini-3.5-flash, nemotron-openrouter, command-a, gpt-oss-120b-groq]
+    - mistral-small: [gemini-3.5-flash, gpt-oss-120b-groq, command-a, solar-mini, glm-4.5-flash]
+    - command-a: [gpt-oss-120b-groq, gemini-3.5-flash, solar-mini, gpt-oss-120b-cerebras]
+    - solar-mini: [nemotron-nvidia, gpt-oss-120b-groq, command-a, llama-3.3-70b-cloudflare]
+    - llama-3.3-70b-cloudflare: [gpt-oss-120b-groq, nemotron-openrouter, solar-mini, command-a]
 
 litellm_settings:
   drop_params: true

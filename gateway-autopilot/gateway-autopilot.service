@@ -1,0 +1,12 @@
+[Unit]
+Description=gateway-autopilot: self-maintain LiteLLM model pool
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/litellm/autopilot
+ExecStart=/usr/bin/flock -n /opt/litellm/autopilot/.systemd.lock /usr/bin/python3 -B /opt/litellm/autopilot/autopilot.py --once
+TimeoutStartSec=1800
+Nice=10
+UMask=0077

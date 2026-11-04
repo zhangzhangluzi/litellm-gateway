@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily gateway-autopilot run (00:00 UTC = 09:00 JST)
+
+[Timer]
+OnCalendar=*-*-* 00:00:00 UTC
+RandomizedDelaySec=900
+Persistent=true
+
+[Install]
+WantedBy=timers.target
